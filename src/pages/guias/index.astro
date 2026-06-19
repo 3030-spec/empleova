@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { getCollection } from 'astro:content';
+import { slugCat, ORDEN_CAT as ORDEN } from '../../lib/categorias';
+
+const guias = await getCollection('guias');
+
+// Agrupar por categoría
+const porCategoria = new Map<string, typeof guias>();
+for (const g of guias) {
+  const cat = g.data.categoria;
+  if (!porCategoria.has(cat)) porCategoria.set(cat, []);
+  porCategoria.get(cat)!.push(g);
+}
+
+// Ordenar guías de cada categoría por fecha (más reciente primero)
+for (const lista of porCategoria.values()) {
+  lista.sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf());
+}
+
+// Ordenar las categorías según ORDEN
+const categorias = [...porCategoria.keys()].sort((a, b) => {
+  const ia = ORDEN.indexOf(a); const ib = ORDEN.indexOf(b);
+  return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+});
+
+---
+<Layout titulo="Guías de empleo" descripcion="Guías y consejos para encontrar trabajo, preparar tu CV, superar entrevistas y conocer salarios y ayudas.">
+  <section class="contenedor">
+    <h1>Guías de empleo</h1>
+    <p style="color:var(--gris)">Consejos prácticos organizados por temas. Elige una categoría:</p>
+
+    <nav class="cat-nav">
+      {categorias.map((c) => <a href={`/guias/categoria/${slugCat(c)}`}>{c}</a>)}
+    </nav>
+
+    {categorias.map((c, i) => (
+      <>
+        <section id={slugCat(c)} class="cat-bloque">
+          <h2><a href={`/guias/categoria/${slugCat(c)}`}>{c}</a></h2>
+          <div class="grid">
+            {porCategoria.get(c)!.map((g) => (
+              <article class="card">
+                <span class="cat">{g.data.categoria}</span>
+                <h3><a href={`/guias/${g.id}`}>{g.data.titulo}</a></h3>
+                <p>{g.data.descripcion}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+        {/* Anuncio cada 2 categorías */}
+        {(i + 1) % 2 === 0 && <AdSlot />}
+      </>
+    ))}
+
+    <AdSlot />
+  </section>
+</Layout>
+
+<style>
+  .cat-nav { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.2rem 0 2rem; }
+  .cat-nav a {
+    background: var(--gris-claro); color: var(--texto);
+    padding: .45rem 1rem; border-radius: 999px; font-size: .9rem; font-weight: 600;
+  }
+  .cat-nav a:hover { background: var(--azul); color: #fff; text-decoration: none; }
+  .cat-bloque { padding: 1rem 0 1.5rem; scroll-margin-top: 80px; }
+  .cat-bloque h2 { border-bottom: 2px solid var(--borde); padding-bottom: .4rem; }
+</style>

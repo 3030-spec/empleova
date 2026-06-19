@@ -1,0 +1,52 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import HeroFoto from '../../../components/HeroFoto.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+import { slugCat, CAT_INFO } from '../../../lib/categorias';
+import { getFoto } from '../../../lib/pexels';
+import { breadcrumbJsonLd } from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  const guias = await getCollection('guias');
+  const cats = [...new Set(guias.map((g) => g.data.categoria))];
+  return cats.map((cat) => ({
+    params: { categoria: slugCat(cat) },
+    props: {
+      cat,
+      guias: guias
+        .filter((g) => g.data.categoria === cat)
+        .sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf()),
+    },
+  }));
+}
+
+const { cat, guias } = Astro.props;
+const info = CAT_INFO[cat] ?? { query: 'work office', intro: '' };
+const foto = await getFoto(info.query);
+const migas = [
+  { nombre: 'Guías de empleo', url: '/guias' },
+  { nombre: cat, url: `/guias/categoria/${slugCat(cat)}` },
+];
+---
+<Layout titulo={`Guías de ${cat}`} descripcion={info.intro || `Guías y consejos sobre ${cat}.`} jsonLd={breadcrumbJsonLd(migas)}>
+  <HeroFoto titulo={`Guías de ${cat}`} subtitulo={info.intro} foto={foto} />
+
+  <section class="contenedor">
+    <Breadcrumbs items={migas} />
+    <AdSlot />
+
+    <div class="grid">
+      {guias.map((g) => (
+        <article class="card">
+          <span class="cat">{g.data.categoria}</span>
+          <h3><a href={`/guias/${g.id}`}>{g.data.titulo}</a></h3>
+          <p>{g.data.descripcion}</p>
+        </article>
+      ))}
+    </div>
+
+    <AdSlot />
+  </section>
+</Layout>

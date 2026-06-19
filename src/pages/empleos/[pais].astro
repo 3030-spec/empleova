@@ -1,0 +1,171 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import JobCard from '../../components/JobCard.astro';
+import HeroFoto from '../../components/HeroFoto.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { breadcrumbJsonLd } from '../../lib/seo';
+import { PAISES, getPais } from '../../data/paises';
+import { getOfertas, adzunaConfigurado } from '../../lib/adzuna';
+import { getOfertasJooble, joobleConfigurado } from '../../lib/jooble';
+import { getFoto } from '../../lib/pexels';
+import { destacadasDe, detalleUrl, logoUrl } from '../../data/ofertas_destacadas';
+
+export async function getStaticPaths() {
+  return PAISES.map((p) => ({ params: { pais: p.slug } }));
+}
+
+const { pais: slug } = Astro.params;
+const pais = getPais(slug!)!;
+const ofertas = pais.proveedor === 'adzuna'
+  ? await getOfertas(pais.codigo)
+  : await getOfertasJooble(pais.codigo);
+const proveedorConfigurado = pais.proveedor === 'adzuna' ? adzunaConfigurado : joobleConfigurado;
+const proveedorNombre = pais.proveedor === 'adzuna' ? 'Adzuna' : 'Jooble';
+const foto = await getFoto(`${pais.nombre} cityscape`);
+const destacadas = destacadasDe(pais.slug);
+
+// Agrupar las ofertas destacadas por sector para que la página quede ordenada.
+const GRUPOS: Record<string, string> = {
+  'retail-jobs': 'Comercio y supermercados',
+  'hospitality-catering-jobs': 'Hostelería, hoteles y restauración',
+  'construction-property-jobs': 'Construcción y oficios',
+  'healthcare-nursing-jobs': 'Cuidado de mayores y salud',
+  'finance-banking-jobs': 'Banca y finanzas',
+  'logistics-warehouse-jobs': 'Logística y reparto',
+  'customer-services-jobs': 'Atención al cliente y telecomunicaciones',
+  'cleaning-jobs': 'Limpieza y servicios',
+  'security-jobs': 'Seguridad',
+  'engineering-jobs': 'Industria y producción',
+  'it-jobs': 'Tecnología',
+  'other-general-jobs': 'Otros sectores',
+};
+const ORDEN_GRUPOS = Object.values(GRUPOS);
+const grupos = new Map<string, typeof destacadas>();
+for (const o of destacadas) {
+  const label = GRUPOS[o.categoriaTag] ?? 'Otros sectores';
+  if (!grupos.has(label)) grupos.set(label, []);
+  grupos.get(label)!.push(o);
+}
+const gruposOrdenados = ORDEN_GRUPOS.filter((g) => grupos.has(g));
+
+const migas = [
+  { nombre: 'Ofertas de empleo', url: '/empleos' },
+  { nombre: pais.nombre, url: `/empleos/${pais.slug}` },
+];
+---
+<Layout
+  titulo={`Ofertas de empleo en ${pais.nombre}`}
+  descripcion={`Ofertas de trabajo reales y actualizadas en ${pais.nombre}. ${pais.sectores}`}
+  jsonLd={breadcrumbJsonLd(migas)}
+>
+  <HeroFoto
+    titulo={`${pais.emoji} Empleos en ${pais.nombre}`}
+    subtitulo="Ofertas de trabajo reales y actualizadas. Postula directamente en la fuente."
+    foto={foto}
+  />
+
+  <section class="contenedor">
+    <Breadcrumbs items={migas} />
+    {pais.intro.map((p) => <p>{p}</p>)}
+    <p style="color:var(--gris)"><strong>Sectores con más demanda:</strong> {pais.sectores}</p>
+
+    <aside class="recurso">
+      <h2>Trabajar en {pais.nombre}: recurso oficial</h2>
+      <p>
+        Para trámites, derechos laborales y bolsas de empleo públicas, consulta el servicio
+        oficial de empleo de {pais.nombre}. Es gratuito y una fuente fiable de información:
+      </p>
+      <p>
+        <a class="btn" href={pais.recurso.url} target="_blank" rel="noopener">
+          {pais.recurso.nombre} ↗
+        </a>
+      </p>
+      <p class="nota">Antes de postular, recuerda: ninguna oferta legítima te pedirá dinero por adelantado.</p>
+    </aside>
+
+    <AdSlot />
+
+    {destacadas.length > 0 && (
+      <section class="empresas">
+        <h2>Ofertas de empleo en {pais.nombre} por empresa</h2>
+        <p style="color:var(--gris)">Ofertas de empleo en {pais.nombre} de empresas que contratan con frecuencia, organizadas por sector. Postula directamente en su web oficial de empleo.</p>
+        <p class="tip">
+          💡 <strong>Consejo:</strong> antes de postular, prepara un buen
+          <a href="/guias/como-hacer-un-buen-curriculum">currículum</a> y revisa nuestras
+          <a href="/guias">guías para encontrar trabajo</a>. Y recuerda: ninguna empresa seria
+          te pedirá dinero para contratarte (aprende a <a href="/guias/como-detectar-ofertas-de-empleo-falsas">detectar ofertas falsas</a>).
+        </p>
+        {gruposOrdenados.map((g, gi) => (
+          <>
+            <h3 class="grupo-titulo">{g}</h3>
+            <div class="grid">
+              {grupos.get(g)!.map((o) => <JobCard oferta={o} href={detalleUrl(o)} logo={logoUrl(o)} />)}
+            </div>
+            {/* Anuncio cada 2 sectores */}
+            {(gi + 1) % 2 === 0 && <AdSlot />}
+          </>
+        ))}
+      </section>
+    )}
+
+    <AdSlot />
+
+    <h2>Más ofertas de empleo</h2>
+
+    {ofertas.length > 0 ? (
+      <div class="grid">
+        {ofertas.map((o, i) => (
+          <>
+            <JobCard oferta={o} />
+            {/* Anuncio intercalado cada 8 ofertas */}
+            {(i + 1) % 8 === 0 && (
+              <div class="ad-grid"><AdSlot /></div>
+            )}
+          </>
+        ))}
+      </div>
+    ) : (
+      <div class="ad-placeholder" style="text-align:center">
+        {proveedorConfigurado
+          ? 'Por ahora, revisa las empresas de arriba, que tienen vacantes frecuentes.'
+          : `Por ahora, revisa las empresas de arriba. (Para mostrar más ofertas en tiempo real, configura tu clave de ${proveedorNombre} en el archivo .env — ver README.)`}
+      </div>
+    )}
+
+    <AdSlot />
+
+    <p style="color:var(--gris);font-size:.85rem;margin-top:1.5rem">
+      Las ofertas se muestran a través de la API de {proveedorNombre} y enlazan a su fuente original.
+      Este sitio no gestiona contrataciones; es un puente informativo entre aspirantes y oferentes.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .recurso {
+    background: var(--gris-claro);
+    border: 1px solid var(--borde);
+    border-left: 4px solid var(--azul);
+    border-radius: var(--radio);
+    padding: 1.3rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .recurso h2 { margin-top: 0; font-size: 1.25rem; }
+  .recurso .nota { color: var(--gris); font-size: .85rem; margin-bottom: 0; }
+  .grupo-titulo {
+    font-size: 1.15rem;
+    margin: 1.6rem 0 .6rem;
+    padding-bottom: .35rem;
+    border-bottom: 2px solid var(--borde);
+    color: var(--azul-osc);
+  }
+  .tip {
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: var(--radio);
+    padding: .9rem 1.1rem;
+    font-size: .92rem;
+    margin: 1rem 0 1.5rem;
+  }
+</style>

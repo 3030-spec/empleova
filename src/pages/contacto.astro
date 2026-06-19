@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SITE } from '../config';
+---
+<Layout titulo="Contacto" descripcion={`Ponte en contacto con el equipo de ${SITE.nombre}.`}>
+  <article class="articulo">
+    <h1>Contacto</h1>
+    <p>¿Tienes alguna pregunta, sugerencia o quieres reportar una oferta? Estaremos encantados de ayudarte.</p>
+    <p>Puedes escribirnos a:</p>
+    <p><strong>Email:</strong> <a href="mailto:contacto@example.com">contacto@example.com</a></p>
+    <p style="color:var(--gris);font-size:0.9rem">(Cambia este email por el tuyo en <code>src/pages/contacto.astro</code>. Más adelante podemos añadir un formulario de contacto gratuito.)</p>
+  </article>
+</Layout>

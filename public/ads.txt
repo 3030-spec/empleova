@@ -1,0 +1,4 @@
+# ads.txt para Google AdSense
+# Cuando AdSense te apruebe, sustituye pub-0000000000000000 por tu ID de editor real
+# (lo encuentras en AdSense > Cuenta). Esto es obligatorio para cobrar.
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

@@ -1,0 +1,82 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getCollection, render } from 'astro:content';
+import { slugCat } from '../../lib/categorias';
+import { breadcrumbJsonLd, articleJsonLd, faqJsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const guias = await getCollection('guias');
+  return guias.map((g) => ({
+    params: { slug: g.id },
+    props: {
+      guia: g,
+      // Guías relacionadas: misma categoría, excluyendo la actual (máx. 3).
+      relacionadas: guias
+        .filter((x) => x.data.categoria === g.data.categoria && x.id !== g.id)
+        .sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf())
+        .slice(0, 3),
+    },
+  }));
+}
+
+const { guia, relacionadas } = Astro.props;
+const { Content } = await render(guia);
+
+const catSlug = slugCat(guia.data.categoria);
+const ruta = `/guias/${guia.id}`;
+
+const jsonLd = [
+  articleJsonLd({
+    titulo: guia.data.titulo,
+    descripcion: guia.data.descripcion,
+    url: ruta,
+    fecha: guia.data.fecha,
+  }),
+  breadcrumbJsonLd([
+    { nombre: 'Guías de empleo', url: '/guias' },
+    { nombre: guia.data.categoria, url: `/guias/categoria/${catSlug}` },
+    { nombre: guia.data.titulo, url: ruta },
+  ]),
+  ...(guia.data.faq ? [faqJsonLd(guia.data.faq)] : []),
+];
+---
+<Layout titulo={guia.data.titulo} descripcion={guia.data.descripcion} jsonLd={jsonLd}>
+  <article class="articulo">
+    <Breadcrumbs items={[
+      { nombre: 'Guías de empleo', url: '/guias' },
+      { nombre: guia.data.categoria, url: `/guias/categoria/${catSlug}` },
+      { nombre: guia.data.titulo, url: ruta },
+    ]} />
+
+    <span class="cat" style="color:var(--azul);font-weight:700;text-transform:uppercase;font-size:0.8rem">{guia.data.categoria}</span>
+    <h1>{guia.data.titulo}</h1>
+
+    <AdSlot />
+
+    <Content />
+
+    <AdSlot />
+
+    {relacionadas.length > 0 && (
+      <section class="relacionadas">
+        <h2>Guías relacionadas</h2>
+        <ul>
+          {relacionadas.map((r) => (
+            <li><a href={`/guias/${r.id}`}>{r.data.titulo}</a></li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <p style="margin-top:2rem"><a href="/guias">← Ver todas las guías</a></p>
+  </article>
+</Layout>
+
+<style>
+  .relacionadas { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--borde); }
+  .relacionadas h2 { font-size: 1.3rem; }
+  .relacionadas ul { list-style: none; margin: 0; }
+  .relacionadas li { margin-bottom: .5rem; }
+</style>

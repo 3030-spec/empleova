@@ -1,0 +1,182 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { OFERTAS_DESTACADAS, slugEmpresa, detalleUrl, logoUrl } from '../../../data/ofertas_destacadas';
+import { getPais } from '../../../data/paises';
+import { sectorDe } from '../../../lib/sectores';
+import { SECTOR_TEXTO } from '../../../lib/sectorTexto';
+import { SOBRE } from '../../../data/sobre_empresas';
+import { getFoto } from '../../../lib/pexels';
+import { breadcrumbJsonLd, faqJsonLd } from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  return OFERTAS_DESTACADAS.map((o) => ({
+    params: { pais: o.pais, empresa: slugEmpresa(o) },
+    props: { o },
+  }));
+}
+
+const { o } = Astro.props;
+const pais = getPais(o.pais)!;
+const sector = sectorDe(o.categoriaTag, o.categoria, o.titulo);
+const foto = await getFoto(sector.query);
+const logo = logoUrl(o);
+const st = SECTOR_TEXTO[o.categoriaTag] ?? SECTOR_TEXTO['other-general-jobs'];
+const puesto = o.titulo.toLowerCase();
+
+const relacionadas = OFERTAS_DESTACADAS
+  .filter((x) => x.pais === o.pais && x !== o)
+  .slice(0, 6);
+
+const ruta = detalleUrl(o);
+const migas = [
+  { nombre: 'Ofertas de empleo', url: '/empleos' },
+  { nombre: pais.nombre, url: `/empleos/${pais.slug}` },
+  { nombre: o.empresa, url: ruta },
+];
+
+const titulo = `Empleo en ${o.empresa} en ${pais.nombre}: cómo trabajar y postular`;
+const descripcion = `¿Quieres trabajar en ${o.empresa} en ${pais.nombre}? Ofertas de empleo, requisitos, sueldo y cómo postular paso a paso (${puesto}). Vacantes actualizadas.`;
+
+// Preguntas frecuentes (con datos estructurados FAQ para SEO).
+const faqs = [
+  {
+    pregunta: `¿Cómo puedo trabajar en ${o.empresa} en ${pais.nombre}?`,
+    respuesta: `Para trabajar en ${o.empresa} debes entrar en su web oficial de empleo, buscar las vacantes disponibles en ${pais.nombre}, registrar tu perfil y postular a las ofertas que encajen contigo, como ${puesto}.`,
+  },
+  {
+    pregunta: `¿${o.empresa} pide experiencia?`,
+    respuesta: st.sinExperiencia
+      ? `Muchos puestos en ${o.empresa} no requieren experiencia previa y son una buena puerta de entrada al mercado laboral. Para puestos especializados sí puede pedirse formación o experiencia.`
+      : `Algunos puestos en ${o.empresa} requieren formación o experiencia, aunque también suele haber vacantes de entrada. Revisa los requisitos de cada oferta.`,
+  },
+  {
+    pregunta: `¿Cuánto se gana trabajando en ${o.empresa}?`,
+    respuesta: `El sueldo en ${o.empresa} depende del puesto, la jornada, la experiencia y el país. Consulta nuestras guías de salarios para hacerte una idea orientativa antes de postular.`,
+  },
+];
+
+const jsonLd = [breadcrumbJsonLd(migas), faqJsonLd(faqs)];
+---
+<Layout titulo={titulo} descripcion={descripcion} jsonLd={jsonLd}>
+  <section class="contenedor">
+    <Breadcrumbs items={migas} />
+
+    <article class="empresa-detalle">
+      <header class="ed-head" style={foto ? `background-image:url('${foto.url}')` : `background:linear-gradient(135deg, ${sector.grad[0]}, ${sector.grad[1]})`}>
+        <div class="ed-overlay"></div>
+        <div class="ed-head-cont">
+          {logo && <img class="ed-logo" src={logo} alt={`Logo de ${o.empresa}`} loading="lazy" onerror="this.remove()" />}
+          <span class="ed-badge">{sector.emoji} {o.categoria}</span>
+          <h1>Empleo en {o.empresa} ({pais.nombre})</h1>
+          <p class="ed-sub">Ofertas de trabajo, requisitos y cómo postular como {puesto} en {pais.nombre}.</p>
+        </div>
+      </header>
+
+      <h2>Trabajar en {o.empresa} en {pais.nombre}</h2>
+      <p>{o.sobre ?? SOBRE[o.id] ?? o.descripcion}</p>
+      <p>
+        Si buscas <strong>empleo en {o.empresa}</strong> o quieres saber <strong>cómo entrar a trabajar en {o.empresa}</strong>,
+        aquí te explicamos los puestos que ofrece en {pais.nombre}, los requisitos habituales, una idea del sueldo y el
+        paso a paso para enviar tu candidatura. {pais.sectores}
+      </p>
+
+      <AdSlot />
+
+      <h2>¿Qué hace un {puesto} en {o.empresa}?</h2>
+      <p>{st.queHace}</p>
+      <p>Las funciones más habituales son:</p>
+      <ul>
+        {st.funciones.map((f) => <li>{f}</li>)}
+      </ul>
+
+      <h2>Requisitos para trabajar en {o.empresa}</h2>
+      <ul>
+        {st.requisitos.map((r) => <li>{r}</li>)}
+      </ul>
+
+      <h2>¿Cuánto se gana en {o.empresa}?</h2>
+      <p>
+        El sueldo de un <strong>{puesto}</strong> en {o.empresa} depende del puesto concreto, la jornada, la experiencia
+        y la zona. Tómalo siempre como orientativo y confírmalo en cada oferta.
+        {st.salarioGuia && (
+          <> Puedes hacerte una idea en nuestra <a href={`/guias/${st.salarioGuia}`}>guía de salarios relacionada</a>.</>
+        )}
+      </p>
+
+      <AdSlot />
+
+      <h2>Cómo postular en {o.empresa} (enviar tu currículum)</h2>
+      <ol>
+        <li>Entra en la <strong>web oficial de empleo de {o.empresa}</strong> (enlace abajo).</li>
+        <li>Busca las <strong>vacantes en {pais.nombre}</strong> por ubicación y tipo de puesto.</li>
+        <li>Regístrate y completa tu perfil con tu currículum, tus datos y tu experiencia.</li>
+        <li>Postula a las ofertas que encajen contigo y mantente atento a su respuesta.</li>
+      </ol>
+
+      <p class="ed-cta">
+        <a class="btn" href={o.url} target="_blank" rel="nofollow noopener">
+          Ver vacantes de {o.empresa} ↗
+        </a>
+      </p>
+      <p class="ed-nota">
+        Te redirige a la web oficial de {o.empresa}. Recuerda: ninguna empresa seria te pedirá dinero por postular.
+        Aprende a <a href="/guias/como-detectar-ofertas-de-empleo-falsas">detectar ofertas de empleo falsas</a>.
+      </p>
+
+      <AdSlot />
+
+      <h2>Consejos para conseguir empleo en {o.empresa}</h2>
+      <ul>
+        <li>Prepara un <a href="/guias/como-hacer-un-buen-curriculum">buen currículum</a> adaptado al puesto de {puesto}.</li>
+        <li>Repasa las <a href="/guias/preguntas-frecuentes-entrevista-respuestas">preguntas frecuentes de entrevista</a>.</li>
+        {st.sinExperiencia && <li>¿Sin experiencia? Mira nuestra guía de <a href="/guias/trabajos-sin-experiencia">trabajos sin experiencia</a>.</li>}
+        <li>Consulta también el <a href={pais.recurso.url} target="_blank" rel="noopener">servicio público de empleo de {pais.nombre}</a>.</li>
+      </ul>
+
+      <h2>Preguntas frecuentes sobre el empleo en {o.empresa}</h2>
+      <div class="faq">
+        {faqs.map((q) => (
+          <details>
+            <summary>{q.pregunta}</summary>
+            <p>{q.respuesta}</p>
+          </details>
+        ))}
+      </div>
+
+      <AdSlot />
+
+      <h2>Más empresas que contratan en {pais.nombre}</h2>
+      <div class="grid">
+        {relacionadas.map((r) => (
+          <article class="card">
+            <span class="cat">{r.categoria}</span>
+            <h3><a href={detalleUrl(r)}>{r.empresa}</a></h3>
+            <p>{r.titulo}</p>
+          </article>
+        ))}
+      </div>
+
+      <p style="margin-top:1.5rem"><a href={`/empleos/${pais.slug}`}>← Ver todas las ofertas de empleo en {pais.nombre}</a></p>
+    </article>
+  </section>
+</Layout>
+
+<style>
+  .empresa-detalle { max-width: 820px; margin: 0 auto; }
+  .ed-head { position: relative; border-radius: var(--radio); overflow: hidden; background-size: cover; background-position: center; padding: 2.4rem 1.6rem; margin-bottom: 1.4rem; }
+  .ed-overlay { position: absolute; inset: 0; background: linear-gradient(150deg, rgba(13,18,64,0.84), rgba(26,31,92,0.74)); }
+  .ed-head-cont { position: relative; z-index: 1; }
+  .ed-logo { width: 56px; height: 56px; object-fit: contain; background: #fff; border-radius: 12px; padding: 7px; margin-bottom: .7rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+  .ed-badge { display: inline-block; background: rgba(255,255,255,0.16); color: #fff; padding: .3rem .8rem; border-radius: 999px; font-size: .8rem; font-weight: 600; margin-bottom: .6rem; }
+  .ed-head h1 { color: #fff; font-size: 2rem; margin: 0; }
+  .ed-sub { color: rgba(255,255,255,0.92); margin: .5rem 0 0; }
+  .empresa-detalle h2 { margin-top: 2rem; }
+  .ed-cta { margin: 1.4rem 0 .5rem; }
+  .ed-nota { color: var(--gris); font-size: .88rem; }
+  .faq details { border: 1px solid var(--borde); border-radius: 10px; padding: .8rem 1rem; margin-bottom: .6rem; background: #fff; }
+  .faq summary { font-weight: 600; cursor: pointer; }
+  .faq details p { margin: .6rem 0 0; color: var(--gris); }
+  @media (max-width: 600px) { .ed-head h1 { font-size: 1.5rem; } }
+</style>

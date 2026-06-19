@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SITE } from '../config';
+---
+<Layout titulo="Aviso legal" descripcion="Aviso legal y condiciones de uso del sitio.">
+  <article class="articulo">
+    <h1>Aviso legal</h1>
+
+    <h2>Objeto del sitio</h2>
+    <p>{SITE.nombre} es un portal informativo de carácter gratuito sobre empleo. La información publicada tiene fines orientativos y no constituye asesoramiento profesional, legal ni laboral.</p>
+
+    <h2>Sobre las ofertas de empleo</h2>
+    <p>{SITE.nombre} no ofrece empleos directamente ni participa en procesos de selección. Actuamos como un puente informativo entre aspirantes y oferentes. No garantizamos la veracidad, vigencia ni disponibilidad de las ofertas mencionadas, y recomendamos verificar siempre la información directamente con la empresa o entidad correspondiente.</p>
+
+    <h2>Prevención de fraudes</h2>
+    <p>Ningún proceso de empleo legítimo te pedirá dinero por adelantado. Desconfía de cualquier oferta que solicite pagos para acceder a un puesto de trabajo.</p>
+
+    <h2>Propiedad intelectual</h2>
+    <p>Los contenidos de este sitio son propiedad de {SITE.nombre} salvo indicación contraria. Queda prohibida su reproducción total sin autorización.</p>
+
+    <h2>Responsabilidad</h2>
+    <p>No nos hacemos responsables de las decisiones tomadas a partir de la información de este sitio ni del contenido de sitios externos enlazados.</p>
+  </article>
+</Layout>

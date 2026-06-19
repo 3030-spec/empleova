@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { PAISES } from '../../data/paises';
+---
+<Layout titulo="Ofertas de empleo por país" descripcion="Encuentra ofertas de empleo reales y actualizadas en España, México y Estados Unidos.">
+  <section class="contenedor">
+    <h1>Ofertas de empleo por país</h1>
+    <p style="color:var(--gris)">Elige tu país para ver ofertas de trabajo reales y actualizadas.</p>
+    <div class="grid">
+      {PAISES.map((p) => (
+        <a class="card" href={`/empleos/${p.slug}`} style="text-decoration:none">
+          <div style="font-size:2.5rem">{p.emoji}</div>
+          <h3>Empleos en {p.nombre}</h3>
+          <p>{p.sectores}</p>
+        </a>
+      ))}
+    </div>
+    <AdSlot />
+  </section>
+</Layout>

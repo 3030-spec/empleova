@@ -1,0 +1,92 @@
+---
+import type { Oferta } from '../lib/adzuna';
+import { sectorDe } from '../lib/sectores';
+import { getFoto } from '../lib/pexels';
+
+interface Props { oferta: Oferta; destacada?: boolean; href?: string; logo?: string | null; }
+const { oferta, destacada = false, href, logo } = Astro.props;
+const sector = sectorDe(oferta.categoriaTag, oferta.categoria, oferta.titulo);
+const foto = await getFoto(sector.query);
+const fecha = oferta.fecha
+  ? new Date(oferta.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+  : '';
+---
+<article class="job">
+  {foto ? (
+    <div class="job-img job-img-foto">
+      <img src={foto.url} alt={`${oferta.categoria} — ${oferta.empresa}`} loading="lazy" decoding="async" width="400" height="240" />
+      {logo && (
+        <span class="logo-chip">
+          <img src={logo} alt={`Logo de ${oferta.empresa}`} loading="lazy" onerror="this.closest('.logo-chip').remove()" />
+        </span>
+      )}
+      <span class="badge">{sector.emoji}</span>
+    </div>
+  ) : (
+    <div class="job-img" style={`background:linear-gradient(135deg, ${sector.grad[0]}, ${sector.grad[1]})`}>
+      {logo && (
+        <span class="logo-chip">
+          <img src={logo} alt={`Logo de ${oferta.empresa}`} loading="lazy" onerror="this.closest('.logo-chip').remove()" />
+        </span>
+      )}
+      <span>{sector.emoji}</span>
+    </div>
+  )}
+  {destacada && <span class="destacada">★ Destacada</span>}
+  <div class="job-body">
+    <span class="cat">{oferta.categoria}</span>
+    <h3>{href ? <a href={href}>{oferta.titulo}</a> : oferta.titulo}</h3>
+    <p class="empresa">{oferta.empresa}{oferta.ubicacion ? ` · ${oferta.ubicacion}` : ''}</p>
+    {oferta.salario && <p class="salario">💶 {oferta.salario}</p>}
+    <p class="desc">{oferta.descripcion}…</p>
+    <div class="job-foot">
+      {fecha && <span class="fecha">{fecha}</span>}
+      {href
+        ? <a class="btn-sm" href={href}>Ver empresa →</a>
+        : <a class="btn-sm" href={oferta.url} target="_blank" rel="nofollow noopener">Ver oferta →</a>}
+    </div>
+  </div>
+</article>
+
+<style>
+  .job { position: relative; border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: box-shadow .15s, transform .15s; }
+  .destacada {
+    position: absolute; top: 8px; left: 8px; z-index: 2;
+    background: var(--verde); color: #fff;
+    font-size: .72rem; font-weight: 700;
+    padding: .25rem .6rem; border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  .job:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .job-img { height: 95px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .job-img span { font-size: 2.3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+  .job-img-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* Logo de la empresa como distintivo sobre la foto */
+  .logo-chip {
+    position: absolute; left: 8px; bottom: 8px; z-index: 2;
+    width: 46px; height: 46px;
+    background: #fff; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.28);
+  }
+  .logo-chip img { position: static; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+  .job-img-foto .badge {
+    position: absolute; bottom: 8px; right: 8px;
+    font-size: 1.3rem; background: rgba(255,255,255,0.92);
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  .job-body { padding: .85rem; display: flex; flex-direction: column; flex: 1; }
+  .cat { color: var(--azul); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+  .job-body h3 { font-size: .98rem; margin: .3rem 0; color: #111827; }
+  .job-body h3 a { color: inherit; }
+  .job-body h3 a:hover { color: var(--azul); }
+  .empresa { color: var(--gris); font-size: .82rem; margin-bottom: .35rem; }
+  .salario { color: var(--verde); font-weight: 600; font-size: .82rem; margin-bottom: .35rem; }
+  .desc { color: #4b5563; font-size: .8rem; margin-bottom: .8rem; flex: 1; }
+  .job-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+  .fecha { color: var(--gris); font-size: .8rem; }
+  .btn-sm { background: var(--azul); color: #fff; padding: .45rem .9rem; border-radius: 5px; font-size: .85rem; font-weight: 600; transition: background .15s; }
+  .btn-sm:hover { background: var(--azul-osc); text-decoration: none; }
+</style>

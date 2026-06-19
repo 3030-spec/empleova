@@ -1,0 +1,20 @@
+name: Recompilar a diario (ofertas frescas)
+
+# Dispara un redespliegue una vez al día para refrescar las ofertas de Adzuna/Jooble.
+# Cómo activarlo:
+# 1. Publica el sitio en Cloudflare Pages (o Netlify) y crea un "Deploy Hook" (URL).
+# 2. En GitHub: Settings > Secrets and variables > Actions > New repository secret
+#    Nombre: DEPLOY_HOOK_URL   Valor: la URL del Deploy Hook.
+# 3. Listo: cada día a las 6:00 (hora de España) se recompila solo.
+
+on:
+  schedule:
+    - cron: '0 5 * * *' # 05:00 UTC (~06:00/07:00 en España según horario)
+  workflow_dispatch: {} # permite lanzarlo a mano desde la pestaña Actions
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar redespliegue
+        run: curl -fsSL -X POST "${{ secrets.DEPLOY_HOOK_URL }}"

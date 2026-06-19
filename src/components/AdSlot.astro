@@ -1,0 +1,31 @@
+---
+// Bloque de anuncio de Google AdSense.
+// Mientras no haya adsenseClientId configurado, muestra un placeholder
+// para que veas dónde irán los anuncios sin romper nada.
+import { SITE } from '../config';
+
+interface Props {
+  slot?: string; // ID del bloque de anuncio que te da AdSense
+}
+const { slot = '' } = Astro.props;
+const activo = SITE.adsenseClientId && slot;
+---
+
+<div class="ad-box">
+  <div class="ad-label">Publicidad</div>
+  {activo ? (
+    <ins
+      class="adsbygoogle"
+      style="display:block"
+      data-ad-client={SITE.adsenseClientId}
+      data-ad-slot={slot}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  ) : (
+    <div class="ad-placeholder">📢 Espacio para anuncio (se activa al configurar AdSense)</div>
+  )}
+</div>

@@ -1,0 +1,27 @@
+---
+import { SITE } from '../config';
+
+interface Item { nombre: string; url: string; }
+interface Props { items: Item[]; } // sin incluir "Inicio" (se añade solo)
+const { items } = Astro.props;
+
+const todos = [{ nombre: 'Inicio', url: '/' }, ...items];
+---
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  {todos.map((it, i) => (
+    <>
+      {i > 0 && <span class="sep">›</span>}
+      {i < todos.length - 1
+        ? <a href={it.url}>{it.nombre}</a>
+        : <span aria-current="page">{it.nombre}</span>}
+    </>
+  ))}
+</nav>
+
+<style>
+  .breadcrumbs { font-size: .85rem; color: var(--gris); margin: 1rem 0; }
+  .breadcrumbs a { color: var(--gris); }
+  .breadcrumbs a:hover { color: var(--azul); }
+  .breadcrumbs .sep { margin: 0 .4rem; color: var(--borde); }
+  .breadcrumbs [aria-current="page"] { color: var(--texto); font-weight: 600; }
+</style>

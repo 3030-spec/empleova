@@ -1,0 +1,139 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { SITE } from '../config';
+import { PAISES } from '../data/paises';
+import { getCollection } from 'astro:content';
+
+const guias = (await getCollection('guias'))
+  .sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf())
+  .slice(0, 6);
+---
+<Layout titulo={SITE.nombre} descripcion={SITE.descripcion}>
+  <section class="hero">
+    <div class="contenedor">
+      <h1>Encuentra tu próximo empleo</h1>
+      <p>Ofertas de trabajo, guías prácticas y consejos para conseguir empleo en España y Latinoamérica.</p>
+
+      <div class="buscador-wrap">
+        <form class="buscador" role="search" onsubmit="return false">
+          <input id="q" type="search" placeholder="Busca un puesto, empresa o país…" autocomplete="off" aria-label="Buscar empleo" />
+          <button type="submit" class="buscar-btn">Buscar</button>
+        </form>
+        <div id="resultados" class="resultados" hidden></div>
+      </div>
+
+      <div class="chips">
+        {PAISES.slice(0, 8).map((p) => <a class="chip" href={`/empleos/${p.slug}`}>{p.emoji} {p.nombre}</a>)}
+        <a class="chip" href="/empleos"><strong>+ Todos los países</strong></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="contenedor">
+    <h2>Guías y consejos para conseguir trabajo</h2>
+    <p style="color:var(--gris)">Todo lo que necesitas saber para encontrar empleo, preparar tu CV y superar entrevistas.</p>
+    <div class="grid">
+      {guias.map((g) => (
+        <article class="card">
+          <span class="cat">{g.data.categoria}</span>
+          <h3><a href={`/guias/${g.id}`}>{g.data.titulo}</a></h3>
+          <p>{g.data.descripcion}</p>
+        </article>
+      ))}
+    </div>
+    <p style="text-align:center;margin-top:1rem"><a class="btn" href="/guias">Ver todas las guías</a></p>
+  </section>
+
+  <div class="contenedor">
+    <AdSlot />
+  </div>
+
+  <section class="alt">
+    <div class="contenedor">
+      <h2>¿Cómo funciona {SITE.nombre}?</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>1. Explora guías</h3>
+          <p>Lee artículos prácticos sobre dónde buscar empleo, cómo aplicar y qué evitar.</p>
+        </div>
+        <div class="card">
+          <h3>2. Prepara tu candidatura</h3>
+          <p>Mejora tu CV, tu carta de presentación y tu perfil para destacar entre los aspirantes.</p>
+        </div>
+        <div class="card">
+          <h3>3. Aplica con confianza</h3>
+          <p>Te conectamos con la información para postular a las ofertas correctas y reales.</p>
+        </div>
+      </div>
+      <AdSlot />
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const input = document.getElementById('q');
+  const box = document.getElementById('resultados');
+  let actuales = [];
+  let data = null;
+  let cargando = null;
+
+  // El indice se descarga solo la primera vez que se usa el buscador.
+  function cargar() {
+    if (data) return Promise.resolve(data);
+    if (!cargando) {
+      cargando = fetch('/buscador.json')
+        .then((r) => r.json())
+        .then((idx) => {
+          data = idx.map((it) => ({ ...it, n: norm(it.t + ' ' + it.s + ' ' + (it.k || '')) }));
+          return data;
+        })
+        .catch(() => { data = []; return data; });
+    }
+    return cargando;
+  }
+
+  async function render(q) {
+    const nq = norm(q.trim());
+    if (nq.length < 2) { box.hidden = true; box.innerHTML = ''; actuales = []; return; }
+    const d = await cargar();
+    const palabras = nq.split(/\s+/);
+    actuales = d.filter((it) => palabras.every((pp) => it.n.includes(pp))).slice(0, 10);
+    box.hidden = false;
+    if (actuales.length === 0) {
+      box.innerHTML = '<div class="r-vacio">Sin coincidencias directas. <a href="/empleos">Ver todas las ofertas por pais</a></div>';
+      return;
+    }
+    box.innerHTML = actuales
+      .map((r) => `<a href="${r.u}"><span class="r-t">${esc(r.t)}</span><span class="r-s">${esc(r.s)}</span></a>`)
+      .join('');
+  }
+
+  input.addEventListener('focus', cargar, { once: true });
+  input.addEventListener('input', (e) => render(e.target.value));
+  input.closest('form').addEventListener('submit', () => {
+    window.location.href = actuales.length > 0 ? actuales[0].u : '/empleos';
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.buscador-wrap')) { box.hidden = true; }
+  });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Escape') box.hidden = true; });
+</script>
+
+<style>
+  .buscador-wrap { position: relative; max-width: 560px; margin: 0 auto 1.5rem; }
+  .buscador { display: flex; gap: .5rem; background: #fff; border-radius: 10px; padding: 7px 7px 7px 16px; box-shadow: 0 14px 36px -14px rgba(0,0,0,.45); }
+  .buscador input { flex: 1; border: 0; outline: 0; font-size: 1rem; background: transparent; color: var(--texto); font-family: var(--fuente-texto); }
+  .buscador .buscar-btn { background: var(--azul); color: #fff; border: 0; border-radius: 6px; padding: .6rem 1.4rem; font-weight: 600; cursor: pointer; font-family: var(--fuente-texto); transition: background .15s; }
+  .buscador .buscar-btn:hover { background: var(--azul-osc); }
+  .resultados { position: absolute; left: 0; right: 0; top: calc(100% + 8px); background: #fff; border: 1px solid var(--borde); border-radius: 14px; box-shadow: var(--sombra); overflow: hidden auto; max-height: 64vh; text-align: left; z-index: 60; }
+  .resultados a { display: flex; flex-direction: column; padding: .6rem .95rem; border-bottom: 1px solid var(--borde); }
+  .resultados a:last-child { border-bottom: 0; }
+  .resultados a:hover { background: var(--gris-claro); text-decoration: none; }
+  .resultados .r-t { color: var(--texto); font-weight: 600; font-size: .95rem; }
+  .resultados .r-s { color: var(--gris); font-size: .8rem; }
+  .resultados .r-vacio { padding: .85rem .95rem; color: var(--gris); font-size: .9rem; }
+</style>

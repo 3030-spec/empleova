@@ -1,0 +1,43 @@
+---
+import type { Foto } from '../lib/pexels';
+
+interface Props {
+  titulo: string;
+  subtitulo?: string;
+  foto?: Foto | null;
+}
+const { titulo, subtitulo, foto } = Astro.props;
+---
+<section class="hero" class:list={[{ 'hero-foto': foto }]}
+  style={foto ? `background-image:url('${foto.url}')` : undefined}>
+  <div class="hero-overlay"></div>
+  <div class="contenedor hero-cont">
+    <h1>{titulo}</h1>
+    {subtitulo && <p>{subtitulo}</p>}
+    <slot />
+  </div>
+  {foto && (
+    <a class="credito" href={foto.fotografoUrl} target="_blank" rel="nofollow noopener">
+      Foto: {foto.fotografo} / Pexels
+    </a>
+  )}
+</section>
+
+<style>
+  .hero-foto {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+  .hero-foto .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(155deg, rgba(26,31,92,0.90), rgba(13,18,64,0.86));
+  }
+  .hero:not(.hero-foto) .hero-overlay { display: none; }
+  .hero-cont { position: relative; z-index: 1; }
+  .credito {
+    position: absolute; right: 8px; bottom: 6px; z-index: 1;
+    font-size: .68rem; color: rgba(255,255,255,0.75);
+  }
+  .credito:hover { color: #fff; }
+</style>

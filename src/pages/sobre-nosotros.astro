@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SITE } from '../config';
+---
+<Layout titulo="Sobre nosotros" descripcion={`Conoce ${SITE.nombre}, tu portal de información y guías de empleo.`}>
+  <article class="articulo">
+    <h1>Sobre nosotros</h1>
+    <p>{SITE.nombre} es un portal informativo dedicado a ayudar a personas que buscan empleo en España y Latinoamérica. Publicamos guías prácticas, consejos y recursos para facilitar la búsqueda de trabajo.</p>
+
+    <h2>Nuestra misión</h2>
+    <p>Creemos que el acceso a información clara y útil sobre el mercado laboral marca la diferencia. Por eso reunimos en un solo lugar consejos sobre cómo redactar un buen currículum, dónde buscar ofertas reales, cómo preparar entrevistas y cómo evitar fraudes laborales.</p>
+
+    <h2>Qué hacemos y qué no</h2>
+    <p>{SITE.nombre} <strong>no ofrece empleos directamente</strong> ni gestiona contrataciones. Somos un puente informativo entre aspirantes y oferentes. Toda la información que publicamos es de carácter orientativo y gratuito.</p>
+
+    <h2>Contacto</h2>
+    <p>¿Tienes dudas o sugerencias? Escríbenos a través de nuestra <a href="/contacto">página de contacto</a>.</p>
+  </article>
+</Layout>
