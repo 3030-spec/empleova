@@ -9,7 +9,9 @@ const env = (k: string): string => {
   const m = (import.meta as any).env?.[k];
   return String(p || m || '').trim();
 };
-const APP_ID = env('ADZUNA_APP_ID');
+// El App ID de Adzuna no es secreto (aparece público en los enlaces utm_source de cada
+// oferta), así que lo dejamos por defecto en el código. La App KEY sí va por variable.
+const APP_ID = env('ADZUNA_APP_ID') || 'cea597cb';
 const APP_KEY = env('ADZUNA_APP_KEY');
 
 export const adzunaConfigurado = Boolean(APP_ID && APP_KEY);
