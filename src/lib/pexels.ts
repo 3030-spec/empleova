@@ -3,7 +3,11 @@
 //   PEXELS_API_KEY=tu_clave
 // Si no hay clave, devuelve null y las páginas se muestran sin foto (no se rompe nada).
 
-const API_KEY = import.meta.env.PEXELS_API_KEY ?? process.env.PEXELS_API_KEY;
+const API_KEY = String(
+  (typeof process !== 'undefined' && process.env ? process.env.PEXELS_API_KEY : undefined) ||
+  (import.meta as any).env?.PEXELS_API_KEY ||
+  ''
+).trim();
 
 export const pexelsConfigurado = Boolean(API_KEY);
 

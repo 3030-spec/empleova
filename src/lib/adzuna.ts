@@ -4,8 +4,13 @@
 //   ADZUNA_APP_KEY=tu_app_key
 // Si no hay claves, las funciones devuelven [] y el sitio compila igual.
 
-const APP_ID = import.meta.env.ADZUNA_APP_ID ?? process.env.ADZUNA_APP_ID;
-const APP_KEY = import.meta.env.ADZUNA_APP_KEY ?? process.env.ADZUNA_APP_KEY;
+const env = (k: string): string => {
+  const p = (typeof process !== 'undefined' && process.env ? process.env[k] : undefined);
+  const m = (import.meta as any).env?.[k];
+  return String(p || m || '').trim();
+};
+const APP_ID = env('ADZUNA_APP_ID');
+const APP_KEY = env('ADZUNA_APP_KEY');
 
 export const adzunaConfigurado = Boolean(APP_ID && APP_KEY);
 

@@ -6,7 +6,11 @@
 
 import type { Oferta } from './adzuna';
 
-const API_KEY = import.meta.env.JOOBLE_API_KEY ?? process.env.JOOBLE_API_KEY;
+const API_KEY = String(
+  (typeof process !== 'undefined' && process.env ? process.env.JOOBLE_API_KEY : undefined) ||
+  (import.meta as any).env?.JOOBLE_API_KEY ||
+  ''
+).trim();
 
 export const joobleConfigurado = Boolean(API_KEY);
 
