@@ -9,7 +9,7 @@ export const SITE = {
   url: 'https://empleova.com',
   // Tu ID de cliente de Google AdSense, ej. 'ca-pub-1234567890123456'.
   // Déjalo vacío hasta que AdSense te apruebe; entonces los anuncios se activan solos.
-  adsenseClientId: '',
+  adsenseClientId: 'ca-pub-8601874541331336',
 };
 
 export const PAISES = [
