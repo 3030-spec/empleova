@@ -7,9 +7,10 @@ import '../styles/global.css';
 interface Props {
   titulo: string;
   descripcion?: string;
-  jsonLd?: object | object[]; // datos estructurados extra para esta página
+  jsonLd?: object | object[];
+  noindex?: boolean;
 }
-const { titulo, descripcion = SITE.descripcion, jsonLd } = Astro.props;
+const { titulo, descripcion = SITE.descripcion, jsonLd, noindex = false } = Astro.props;
 const tituloCompleto = titulo === SITE.nombre ? titulo : `${titulo} | ${SITE.nombre}`;
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 
@@ -48,7 +49,7 @@ const todosJsonLd = [...sitioJsonLd, ...extra];
     <meta property="og:site_name" content={SITE.nombre} />
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={noindex ? "noindex, follow" : "index, follow"} />
     <meta name="theme-color" content="#161a4d" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 

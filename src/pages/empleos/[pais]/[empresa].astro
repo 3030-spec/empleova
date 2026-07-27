@@ -58,8 +58,9 @@ const faqs = [
 ];
 
 const jsonLd = [breadcrumbJsonLd(migas), faqJsonLd(faqs)];
+const tieneTextoUnico = !!(o.sobre ?? SOBRE[o.id]);
 ---
-<Layout titulo={titulo} descripcion={descripcion} jsonLd={jsonLd}>
+<Layout titulo={titulo} descripcion={descripcion} jsonLd={jsonLd} noindex={!tieneTextoUnico}>
   <section class="contenedor">
     <Breadcrumbs items={migas} />
 
