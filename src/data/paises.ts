@@ -14,6 +14,7 @@ export interface Pais {
   nombre: string;
   proveedor: Proveedor;
   codigo: string;
+  capital?: string; // para Jooble, que funciona mejor con ciudad que con país
   emoji: string;
   intro: string[];
   sectores: string;
@@ -52,7 +53,7 @@ export const PAISES: Pais[] = [
 
   // ===== Jooble (Latinoamérica) =====
   {
-    slug: 'colombia', nombre: 'Colombia', proveedor: 'jooble', codigo: 'Colombia', emoji: '🇨🇴',
+    slug: 'colombia', nombre: 'Colombia', proveedor: 'jooble', codigo: 'Colombia', capital: 'Bogota', emoji: '🇨🇴',
     intro: [
       'Colombia concentra gran parte de su oferta de empleo en Bogotá, Medellín, Cali y Barranquilla, con un mercado en crecimiento en servicios y tecnología. Aquí encontrarás vacantes reales y actualizadas en todo el país.',
       'Postula a las ofertas que encajen con tu perfil y aplica directamente en la fuente original de cada anuncio.',
@@ -61,7 +62,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'Servicio Público de Empleo de Colombia', url: 'https://www.serviciodeempleo.gov.co' },
   },
   {
-    slug: 'argentina', nombre: 'Argentina', proveedor: 'jooble', codigo: 'Argentina', emoji: '🇦🇷',
+    slug: 'argentina', nombre: 'Argentina', proveedor: 'jooble', codigo: 'Argentina', capital: 'Buenos Aires', emoji: '🇦🇷',
     intro: [
       'En Argentina, Buenos Aires, Córdoba y Rosario reúnen buena parte de las oportunidades laborales, con un sector tecnológico especialmente activo. Te mostramos ofertas reales y actualizadas.',
       'Revisa cada vacante y postula en su fuente original. Un currículum claro y orientado a resultados marca la diferencia.',
@@ -70,7 +71,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'Ministerio de Trabajo de Argentina', url: 'https://www.argentina.gob.ar/trabajo' },
   },
   {
-    slug: 'chile', nombre: 'Chile', proveedor: 'jooble', codigo: 'Chile', emoji: '🇨🇱',
+    slug: 'chile', nombre: 'Chile', proveedor: 'jooble', codigo: 'Chile', capital: 'Santiago', emoji: '🇨🇱',
     intro: [
       'Chile ofrece un mercado laboral estable con foco en Santiago, Valparaíso y Concepción. Aquí reunimos ofertas reales y actualizadas en distintas regiones del país.',
       'Aplica directamente en la fuente original de cada oferta y adapta tu candidatura al puesto.',
@@ -79,7 +80,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'Bolsa Nacional de Empleo (BNE)', url: 'https://www.bne.cl' },
   },
   {
-    slug: 'peru', nombre: 'Perú', proveedor: 'jooble', codigo: 'Perú', emoji: '🇵🇪',
+    slug: 'peru', nombre: 'Perú', proveedor: 'jooble', codigo: 'Perú', capital: 'Lima', emoji: '🇵🇪',
     intro: [
       'En Perú, Lima concentra la mayoría de las vacantes, aunque ciudades como Arequipa y Trujillo también ofrecen oportunidades crecientes. Te mostramos ofertas reales y actualizadas.',
       'Postula en la fuente original de cada anuncio y prepara un currículum adaptado a cada puesto.',
@@ -88,7 +89,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'Ministerio de Trabajo del Perú', url: 'https://www.gob.pe/mtpe' },
   },
   {
-    slug: 'ecuador', nombre: 'Ecuador', proveedor: 'jooble', codigo: 'Ecuador', emoji: '🇪🇨',
+    slug: 'ecuador', nombre: 'Ecuador', proveedor: 'jooble', codigo: 'Ecuador', capital: 'Quito', emoji: '🇪🇨',
     intro: [
       'Ecuador centra su oferta de empleo en Quito y Guayaquil, con oportunidades en comercio y servicios. Aquí encontrarás vacantes reales y actualizadas.',
       'Aplica directamente en la fuente original y revisa bien los requisitos de cada oferta.',
@@ -115,7 +116,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'Ministerio de Trabajo de Uruguay', url: 'https://www.gub.uy/ministerio-trabajo-seguridad-social' },
   },
   {
-    slug: 'bolivia', nombre: 'Bolivia', proveedor: 'jooble', codigo: 'Bolivia', emoji: '🇧🇴',
+    slug: 'bolivia', nombre: 'Bolivia', proveedor: 'jooble', codigo: 'Bolivia', capital: 'La Paz', emoji: '🇧🇴',
     intro: [
       'En Bolivia, Santa Cruz, La Paz y Cochabamba concentran la mayoría de las oportunidades laborales. Te mostramos ofertas reales y actualizadas.',
       'Revisa cada vacante y postula en su fuente original.',
@@ -133,7 +134,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'Ministerio de Trabajo de Paraguay (MTESS)', url: 'https://www.mtess.gov.py' },
   },
   {
-    slug: 'costa-rica', nombre: 'Costa Rica', proveedor: 'jooble', codigo: 'Costa Rica', emoji: '🇨🇷',
+    slug: 'costa-rica', nombre: 'Costa Rica', proveedor: 'jooble', codigo: 'Costa Rica', capital: 'San Jose', emoji: '🇨🇷',
     intro: [
       'Costa Rica destaca por su sector de servicios y tecnología, con San José como principal foco de empleo. Te mostramos ofertas reales y actualizadas.',
       'Postula en la fuente original de cada oferta y adapta tu candidatura al puesto.',
@@ -142,7 +143,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'Ministerio de Trabajo de Costa Rica', url: 'https://www.mtss.go.cr' },
   },
   {
-    slug: 'panama', nombre: 'Panamá', proveedor: 'jooble', codigo: 'Panamá', emoji: '🇵🇦',
+    slug: 'panama', nombre: 'Panamá', proveedor: 'jooble', codigo: 'Panamá', capital: 'Ciudad de Panama', emoji: '🇵🇦',
     intro: [
       'Panamá es un importante centro logístico y financiero de la región, con la mayoría de vacantes en Ciudad de Panamá. Aquí reunimos ofertas reales y actualizadas.',
       'Aplica directamente en la fuente original de cada anuncio.',
@@ -151,7 +152,7 @@ export const PAISES: Pais[] = [
     recurso: { nombre: 'MITRADEL (Ministerio de Trabajo de Panamá)', url: 'https://www.mitradel.gob.pa' },
   },
   {
-    slug: 'guatemala', nombre: 'Guatemala', proveedor: 'jooble', codigo: 'Guatemala', emoji: '🇬🇹',
+    slug: 'guatemala', nombre: 'Guatemala', proveedor: 'jooble', codigo: 'Guatemala', capital: 'Ciudad de Guatemala', emoji: '🇬🇹',
     intro: [
       'En Guatemala, la Ciudad de Guatemala concentra la mayor parte de las oportunidades laborales. Te mostramos ofertas reales y actualizadas.',
       'Revisa los requisitos y postula en la fuente original de cada oferta.',

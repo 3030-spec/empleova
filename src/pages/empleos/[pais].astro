@@ -19,7 +19,7 @@ const { pais: slug } = Astro.params;
 const pais = getPais(slug!)!;
 const ofertas = pais.proveedor === 'adzuna'
   ? await getOfertas(pais.codigo)
-  : await getOfertasJooble(pais.codigo);
+  : await getOfertasJooble(pais.capital ?? pais.codigo);
 const proveedorConfigurado = pais.proveedor === 'adzuna' ? adzunaConfigurado : joobleConfigurado;
 const proveedorNombre = pais.proveedor === 'adzuna' ? 'Adzuna' : 'Jooble';
 const foto = await getFoto(`${pais.nombre} cityscape`);

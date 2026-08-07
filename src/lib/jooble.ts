@@ -24,7 +24,7 @@ export async function getOfertasJooble(
     const res = await fetch(`https://jooble.org/api/${API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ keywords: '', location, page: '1' }),
+      body: JSON.stringify({ keywords: 'empleo', location, page: '1' }),
     });
     if (!res.ok) {
       console.warn(`[jooble] ${location}: HTTP ${res.status}`);
